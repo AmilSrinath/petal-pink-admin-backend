@@ -4,6 +4,7 @@ import bodyParser from 'body-parser';
 import userRouter from './api/user.js';
 import productRouter from './api/product.js';
 import configuration from './api/configuration.js';
+import order from './api/order.js';
 import auth from './Authentication/auth.js';
 
 
@@ -27,6 +28,7 @@ app.use('/api/users', userRouter);
 app.use('/api/auth', auth);
 app.use('/api/product',productRouter);
 app.use('/api/configuration',configuration)
+app.use('/api/order',order)
 
 
 app.listen(4000, () => {

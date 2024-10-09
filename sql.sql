@@ -15,6 +15,19 @@ create table if not exists petal_pink_user_tb
     reset_code_expiry varchar(100) null
 );
 
+create table if not exists petal_pink_configuration_tb
+(
+    config_id    int auto_increment
+        primary key,
+    config_name  varchar(200) null,
+    config_value varchar(200) null,
+    user_id      varchar(10)  null,
+    created_date datetime     null,
+    status       int          null,
+    constraint petal_pink_configuration_user_fk
+        foreign key (user_id) references petal_pink_user_tb (user_id)
+);
+
 create table if not exists petal_pink_product_tb
 (
     product_id    int auto_increment
@@ -41,11 +54,3 @@ create table if not exists petal_pink_product_tb
         foreign key (user_id) references petal_pink_user_tb (user_id)
 );
 
-create table petal_pink_configuration_tb
-(
-    config_id int auto_increment primary key,
-    config_name varchar(200) null,
-    config_value varchar(200) null,
-    user_id varchar(10) null,
-    constraint petal_pink_configuration_user_fk foreign key (user_id) references petal_pink_user_tb (user_id)
-);
