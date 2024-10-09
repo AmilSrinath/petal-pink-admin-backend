@@ -3,6 +3,7 @@ import cors from 'cors';  // Import CORS middleware
 import bodyParser from 'body-parser';
 import userRouter from './api/user.js';
 import productRouter from './api/product.js';
+import configuration from './api/configuration.js';
 import auth from './Authentication/auth.js';
 
 
@@ -25,6 +26,7 @@ app.use('/uploads', express.static('uploads'));
 app.use('/api/users', userRouter);
 app.use('/api/auth', auth);
 app.use('/api/product',productRouter);
+app.use('/api/configuration',configuration)
 
 
 app.listen(4000, () => {

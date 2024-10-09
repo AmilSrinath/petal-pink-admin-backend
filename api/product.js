@@ -2,7 +2,6 @@ import express from "express";
 import db from "../utils/db.js";
 import multer from "multer";
 import dayjs from "dayjs";
-import con from "../utils/db.js";
 
 const router = express.Router();
 
