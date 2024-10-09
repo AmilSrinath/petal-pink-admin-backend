@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 const router = express.Router();
 
 router.get("/getAllData", (req, res) => {
-  const query = "SELECT * FROM petal_pink_product_tb WHERE visible = ?";
+  const query = "SELECT * FROM petal_pink_product_tb WHERE status = ?";
 
   db.query(query, [1], (err, results) => {
     if (err) {
@@ -35,7 +35,7 @@ router.delete("/deleteProduct/:product_id", (req, res) => {
   }
 
   const query =
-      "UPDATE petal_pink_product_tb SET visible = 0 WHERE product_id = ?";
+      "UPDATE petal_pink_product_tb SET status = 0 WHERE product_id = ?";
 
   db.query(query, [product_id], (err, result) => {
     if (err) {
