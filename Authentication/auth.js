@@ -1,28 +1,26 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import pool from '../utils/db.js'; 
+import pool from '../utils/db.js';
 import dotenv from 'dotenv';
 
-
 dotenv.config();
-
 
 const router = express.Router();
 let refreshTokens = [];
 
+// Function to generate access token
 function generateAccessToken(user) {
-    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '24h' }); 
+    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '24h' });
 }
 
+// Function to generate refresh token
 function generateRefreshToken(user) {
     return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
 }
 
-
 // Login route
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
-    console.log(email, password);
 
     if (!email || !password) {
         return res.status(400).json({ error: "Email and password are required." });
@@ -31,32 +29,25 @@ router.post('/login', async (req, res) => {
     try {
         const query = 'SELECT * FROM petal_pink_user_tb WHERE email = ? AND password = ? AND visible = ?';
         const values = [email, password, 1];
-        
-        pool.query(query, values, (error, results) => {
-            if (error) {
-                console.error('Error executing query:', error);
-                return res.status(500).json({ error: 'An error occurred while executing the query.' });
-            }
 
+        const [results] = await pool.query(query, values);
 
-            if (results.length === 0) {
-                return res.status(401).json({ error: "Invalid email or password." });
-            }
+        if (results.length === 0) {
+            return res.status(401).json({ error: "Invalid email or password." });
+        }
 
-            const user = results[0];
+        const user = results[0];
 
+        const userPayload = { email: user.email };
+        const accessToken = generateAccessToken(userPayload);
+        const refreshToken = generateRefreshToken(userPayload);
 
-            const userPayload = { email: user.email };
-            const accessToken = generateAccessToken(userPayload);
-            const refreshToken = generateRefreshToken(userPayload);
+        refreshTokens.push(refreshToken);
 
-   
-            refreshTokens.push(refreshToken);
-
-            res.json({ accessToken, refreshToken });
-        });
+        res.json({ accessToken, refreshToken });
     } catch (error) {
-        res.status(500).json({ error: error.message + " :this is the response" });
+        console.error('Error during login:', error);
+        res.status(500).json({ error: 'An error occurred during login.' });
     }
 });
 

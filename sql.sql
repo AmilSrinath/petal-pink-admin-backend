@@ -1,3 +1,49 @@
+create table if not exists petal_pink_customer_tb
+(
+    cus_id       int auto_increment
+        primary key,
+    first_name   varchar(200) not null,
+    last_name    varchar(200) not null,
+    address      varchar(200) null,
+    city         varchar(200) null,
+    email        varchar(100) not null,
+    phone_1      varchar(12)  not null,
+    phone_2      varchar(12)  null,
+    province     varchar(200) null,
+    suite        varchar(200) null,
+    country      varchar(200) null,
+    created_date datetime     null,
+    status       int          null
+);
+
+create table if not exists petal_pink_order_tb
+(
+    order_id     int auto_increment
+        primary key,
+    cus_id       int         null,
+    created_date datetime    null,
+    payment      varchar(30) null,
+    total        double      null,
+    status       int         null,
+    constraint petal_pink_order_tb_petal_pink_customer_tb_cus_id_fk
+        foreign key (cus_id) references petal_pink_customer_tb (cus_id)
+);
+
+create table if not exists petal_pink_order_details_tb
+(
+    order_details_id int auto_increment
+        primary key,
+    order_id         int          null,
+    quantity         int          null,
+    product_name     varchar(250) null,
+    price            double       null,
+    sub_total        double       null,
+    created_date     datetime     null,
+    status           int          null,
+    constraint petal_pink_order_details_tb_petal_pink_order_tb_order_id_fk
+        foreign key (order_id) references petal_pink_order_tb (order_id)
+);
+
 create table if not exists petal_pink_user_tb
 (
     user_id           varchar(10)  not null
@@ -53,4 +99,3 @@ create table if not exists petal_pink_product_tb
     constraint petal_pink_product_petal_pink_user_tb__fk
         foreign key (user_id) references petal_pink_user_tb (user_id)
 );
-

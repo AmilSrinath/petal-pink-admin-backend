@@ -231,4 +231,31 @@ router.get("/getProductByName/:product_name", async (req, res) => {
     }
 });
 
+
+router.get("/getProductById/:product_id", async (req, res) => {
+    const product_id = req.params.product_id;
+
+    try {
+        const [result] = await db.query(
+            "SELECT * FROM petal_pink_product_tb WHERE product_id = ?",
+            [product_id]
+        );
+
+        if (result.length === 0) {
+            return res.status(404).json({ message: "Product not found." });
+        }
+
+        res.status(200).json(result[0]);
+    } catch (err) {
+        console.error("Error getting product from the database:", err);
+        res.status(500).json({ message: "Error getting product from the database." });
+    }
+});
+
+
+
+
+
+
+
 export default router;

@@ -3,6 +3,20 @@ import db from "../utils/db.js";
 
 const router = express.Router();
 
+
+router.get("/getAllOrders", async (req, res) => {
+    const query = "SELECT * FROM petal_pink_order_tb order by order_id desc";
+
+    try {
+        const [results] = await db.query(query, [1]);
+        res.status(200).json(results);
+    } catch (err) {
+        console.error("Error fetching data from the database:", err);
+        return res.status(500).json({ message: "Error fetching data from the database." });
+    }
+});
+
+
 router.put("/saveOrder", async (req, res) => {
     const { firstName, lastName, address, city, email, phone1, phone2, province, suite, country, cartItems, total, paymentMethod } = req.body;
 
@@ -32,10 +46,10 @@ router.put("/saveOrder", async (req, res) => {
         // Step 2: Insert order details
         const orderInsertQuery = `
             INSERT INTO petal_pink_order_tb 
-            (cus_id, created_date, status, total) 
-            VALUES (?, NOW(), 1, ?)
+            (cus_id, created_date, payment, status, total) 
+            VALUES (?, NOW(), ?, 1, ?)
         `;
-        const [orderResult] = await db.query(orderInsertQuery, [customerId, total]);
+        const [orderResult] = await db.query(orderInsertQuery, [customerId, paymentMethod, total]);
         const orderId = orderResult.insertId;
 
         if (!orderId) {
@@ -66,5 +80,35 @@ router.put("/saveOrder", async (req, res) => {
         res.status(500).json({ message: `Error saving order: ${error.message}` });
     }
 });
+
+
+
+router.get("/getAllDetailsByOrderID/:order_id", async (req, res) => {
+
+    const order_id = req.params.order_id;
+    const query = "SELECT * FROM petal_pink_order_details_tb WHERE order_id = ?";
+
+    try {
+        const [results] = await db.query(query, [order_id]);
+        res.status(200).json(results);
+    } catch (err) {
+        console.error("Error fetching data from the database:", err);
+        return res.status(500).json({ message: "Error fetching data from the database." });
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export default router;

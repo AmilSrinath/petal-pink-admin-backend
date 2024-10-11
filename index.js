@@ -5,6 +5,7 @@ import userRouter from './api/user.js';
 import productRouter from './api/product.js';
 import configuration from './api/configuration.js';
 import order from './api/order.js';
+import customer from './api/customer.js';
 import auth from './Authentication/auth.js';
 
 
@@ -29,6 +30,7 @@ app.use('/api/auth', auth);
 app.use('/api/product',productRouter);
 app.use('/api/configuration',configuration)
 app.use('/api/order',order)
+app.use('/api/customer',customer)
 
 
 app.listen(4000, () => {
