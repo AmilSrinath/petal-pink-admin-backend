@@ -18,7 +18,7 @@ router.get("/getAllOrders", async (req, res) => {
 
 
 router.put("/saveOrder", async (req, res) => {
-    const { firstName, lastName, address, city, email, phone1, phone2, province, suite, country, cartItems, total, paymentMethod } = req.body;
+    const { firstName, lastName, address1, address2, city, email, phone1, phone2, province, country, cartItems, total, paymentMethod, delivery, sub_total } = req.body;
 
     try {
         // Start a transaction
@@ -27,11 +27,11 @@ router.put("/saveOrder", async (req, res) => {
         // Step 1: Insert customer details
         const customerInsertQuery = `
             INSERT INTO petal_pink_customer_tb 
-            (first_name, last_name, address, city, email, phone_1, phone_2, province, suite, country, created_date, status)
+            (first_name, last_name, address1, address2, city, email, phone_1, phone_2, province, country, created_date, status)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), 1)
         `;
         // Use mysql2 with promises, get the result directly
-        const [customerResult] = await db.query(customerInsertQuery, [firstName, lastName, address, city, email, phone1, phone2, province, suite, country]);
+        const [customerResult] = await db.query(customerInsertQuery, [firstName, lastName, address1, address2, city, email, phone1, phone2, province, country]);
 
         // Access insertId from the result
         const customerId = customerResult.insertId;
@@ -46,10 +46,10 @@ router.put("/saveOrder", async (req, res) => {
         // Step 2: Insert order details
         const orderInsertQuery = `
             INSERT INTO petal_pink_order_tb 
-            (cus_id, created_date, payment, status, total) 
-            VALUES (?, NOW(), ?, 1, ?)
+            (cus_id, created_date, payment, status, total, delivery, sub_total) 
+            VALUES (?, NOW(), ?, 1, ?, ?, ?)
         `;
-        const [orderResult] = await db.query(orderInsertQuery, [customerId, paymentMethod, total]);
+        const [orderResult] = await db.query(orderInsertQuery, [customerId, paymentMethod, total, delivery, sub_total]);
         const orderId = orderResult.insertId;
 
         if (!orderId) {

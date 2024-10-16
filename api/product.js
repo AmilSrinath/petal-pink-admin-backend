@@ -84,6 +84,7 @@ router.post("/saveProduct", upload, async (req, res) => {
         quantity,
         discount,
         weight,
+        amount,
         description,
         keyPoints,
         faq,
@@ -94,9 +95,9 @@ router.post("/saveProduct", upload, async (req, res) => {
     const query = `
         INSERT INTO petal_pink_product_tb (
             product_name, unit_type, product_price, quantity, discount, status, visible, create_date, edit_date, 
-            image_url, image_url_2, image_url_3, user_id, weight, description, keyPoints, faq, howToUse
+            image_url, image_url_2, image_url_3, user_id, weight, amount, description, keyPoints, faq, howToUse
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const createdAt = formatDate(new Date());
@@ -105,7 +106,7 @@ router.post("/saveProduct", upload, async (req, res) => {
     try {
         await db.query(query, [
             product_name,
-            unit_type || "me",
+            unit_type || "ml",
             product_price,
             quantity || 0,
             discount || 0,
@@ -118,6 +119,7 @@ router.post("/saveProduct", upload, async (req, res) => {
             imageBase64_3,
             user_id || 'U001',
             weight,
+            amount || 0,
             description || "",
             keyPoints || "",
             faq || "",
@@ -155,13 +157,15 @@ router.put("/updateProduct", upload, async (req, res) => {
         quantity,
         discount,
         weight,
+        amount,
         description,
         keyPoints,
         faq,
         howToUse,
     } = req.body;
 
-    const query = `
+    // Building dynamic query for image columns
+    let query = `
         UPDATE petal_pink_product_tb SET
             product_name = ?,
             unit_type = ?,
@@ -169,33 +173,45 @@ router.put("/updateProduct", upload, async (req, res) => {
             quantity = ?,
             discount = ?,
             weight = ?,
+            amount = ?,
             description = ?,
             keyPoints = ?,
             faq = ?,
-            howToUse = ?,
-            image_url = ?,    
-            image_url_2 = ?,
-            image_url_3 = ?
-        WHERE product_id = ?
-    `;
+            howToUse = ?`;
+
+    const queryParams = [
+        product_name,
+        unit_type || "me",
+        product_price,
+        quantity || 0,
+        discount || 0,
+        weight || 0,
+        amount || 0,
+        description || "",
+        keyPoints || "",
+        faq || "",
+        howToUse || ""
+    ];
+
+    // Only include image columns in the query if they exist
+    if (imageBase64 !== null) {
+        query += `, image_url = ?`;
+        queryParams.push(imageBase64);
+    }
+    if (imageBase64_2 !== null) {
+        query += `, image_url_2 = ?`;
+        queryParams.push(imageBase64_2);
+    }
+    if (imageBase64_3 !== null) {
+        query += `, image_url_3 = ?`;
+        queryParams.push(imageBase64_3);
+    }
+
+    query += ` WHERE product_id = ?`;
+    queryParams.push(product_id);
 
     try {
-        const [result] = await db.query(query, [
-            product_name,
-            unit_type || "me",
-            product_price,
-            quantity || 0,
-            discount || 0,
-            weight,
-            description || "",
-            keyPoints || "",
-            faq || "",
-            howToUse || "",
-            imageBase64,
-            imageBase64_2,
-            imageBase64_3,
-            product_id,
-        ]);
+        const [result] = await db.query(query, queryParams);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: "Product not found." });
@@ -207,6 +223,7 @@ router.put("/updateProduct", upload, async (req, res) => {
         res.status(500).json({ message: "Error updating product in the database." });
     }
 });
+
 
 
 //condtion to check if a get request came
